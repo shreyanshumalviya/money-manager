@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Expense Tracker</string>
+    <string name="widget_name">Quick Add Expense</string>
+    <string name="add_expense">Add Expense</string>
+    <string name="amount_hint">Amount (₹)</string>
+    <string name="note_hint">Note (e.g. Sardarji, Petrol, Rent)</string>
+    <string name="submit">Add Entry</string>
+    <string name="cancel">Cancel</string>
+    <string name="settings_title">Sheet Configuration</string>
+    <string name="web_app_url_hint">Google Apps Script Web App URL</string>
+    <string name="save_settings">Save Settings</string>
+    <string name="test_connection">Test Connection</string>
+    <string name="is_monthly_checkbox">Once a month expense (Yes)</string>
+    <string name="sheet_name_hint">Sheet Name (e.g. Sept 2026)</string>
+</resources>
