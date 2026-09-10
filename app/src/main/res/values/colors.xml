@@ -1,6 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#1E293B</color>
-    <color name="primary_variant">#0F172A</color>
+    <!-- Light Mode Palette -->
+    <color name="primary">#0F172A</color>
+    <color name="primary_variant">#1E293B</color>
     <color name="accent">#10B981</color>
     <color name="accent_dark">#059669</color>
     <color name="surface">#FFFFFF</color>
@@ -8,4 +10,5 @@
     <color name="text_primary">#0F172A</color>
     <color name="text_secondary">#64748B</color>
     <color name="card_stroke">#E2E8F0</color>
+    <color name="input_box_bg">#FFFFFF</color>
 </resources>

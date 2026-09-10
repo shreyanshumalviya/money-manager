@@ -1,12 +1,9 @@
 package com.expense.tracker
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
@@ -14,15 +11,8 @@ import kotlinx.coroutines.launch
 
 class QuickAddActivity : AppCompatActivity() {
 
-    // Categories matching your sheet tabs: Food, Travel, Subscriptions, Luxury Purchase, Household, Rent, for others
     private val categories = arrayOf(
-        "Food",
-        "Travel",
-        "Subscriptions",
-        "Luxury Purchase",
-        "Household",
-        "Rent",
-        "for others"
+        "Food", "Travel", "Subscriptions", "Luxury Purchase", "Household", "Rent", "for others"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,29 +27,19 @@ class QuickAddActivity : AppCompatActivity() {
         val btnCancel = findViewById<Button>(R.id.btnCancel)
         val tvSheetTarget = findViewById<TextView>(R.id.tvSheetTarget)
 
-        val targetSheet = ExpenseRepository.getSheetName(this)
-        tvSheetTarget.text = "Logging to: $targetSheet"
+        tvSheetTarget.text = "Logging to: ${ExpenseRepository.getSheetName(this)}"
+        spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
-        spinnerCategory.adapter = adapter
-
-        btnCancel.setOnClickListener {
-            finish()
-        }
+        btnCancel.setOnClickListener { finish() }
 
         btnSubmit.setOnClickListener {
             val amountStr = etAmount.text.toString().trim()
             if (amountStr.isEmpty()) {
-                etAmount.error = "Please enter amount"
+                etAmount.error = "Enter amount"
                 return@setOnClickListener
             }
 
-            val amount = amountStr.toDoubleOrNull()
-            if (amount == null || amount <= 0) {
-                etAmount.error = "Invalid amount"
-                return@setOnClickListener
-            }
-
+            val amount = amountStr.toDouble()
             val category = spinnerCategory.selectedItem.toString()
             val note = etNote.text.toString().trim()
             val isMonthly = cbMonthly.isChecked
@@ -76,15 +56,38 @@ class QuickAddActivity : AppCompatActivity() {
                     isMonthly = isMonthly
                 )
 
-                result.onSuccess { msg ->
-                    Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
-                    finish()
+                result.onSuccess { pair ->
+                    val stats = pair.second
+                    if (stats != null) {
+                        showSuccessDialog(amount, category, stats)
+                    } else {
+                        Toast.makeText(applicationContext, "Added ₹$amount to $category", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
                 }.onFailure { err ->
                     btnSubmit.isEnabled = true
                     btnSubmit.text = "Retry"
-                    Toast.makeText(applicationContext, "Failed: ${err.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(applicationContext, "Error: ${err.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
+    }
+
+    private fun showSuccessDialog(amount: Double, category: String, stats: SheetStats) {
+        val msg = """
+            Entry: ₹${amount.toInt()} ($category)
+            
+            • Total Consumed: ₹${stats.totalConsumed.toInt()}
+            • Once a Month: ₹${stats.onceAMonthSum.toInt()}
+            • Adjusted Rate: ₹${stats.adjustedRate.toInt()}/day
+            • Month End Estimate: ₹${stats.adjustedEstimate.toInt()}
+        """.trimIndent()
+
+        AlertDialog.Builder(this)
+            .setTitle("Expense Added!")
+            .setMessage(msg)
+            .setPositiveButton("Done") { _, _ -> finish() }
+            .setCancelable(false)
+            .show()
     }
 }
